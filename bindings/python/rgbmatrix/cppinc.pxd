@@ -76,15 +76,3 @@ cdef extern from "graphics.h" namespace "rgb_matrix":
         uint8_t r
         uint8_t g
         uint8_t b
-
-    cdef cppclass Font:
-        Font() except +
-        bool LoadFont(const char*)
-        int height()
-        int baseline()
-        int CharacterWidth(uint32_t)
-        int DrawGlyph(Canvas*, int, int, const Color, uint32_t);
-
-    cdef int DrawText(Canvas*, const Font, int, int, const Color, const char*)
-    cdef void DrawCircle(Canvas*, int, int, int, const Color)
-    cdef void DrawLine(Canvas*, int, int, int, int, const Color)

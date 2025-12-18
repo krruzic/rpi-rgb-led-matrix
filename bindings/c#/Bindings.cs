@@ -45,20 +45,6 @@ internal static class Bindings
     [SuppressGCTransition]
     public static extern void led_matrix_set_brightness(IntPtr matrix, byte brightness);
 
-    [DllImport(Lib, CharSet = CharSet.Ansi)]
-    public static extern IntPtr load_font(string bdf_font_file);
-
-    [DllImport(Lib, CharSet = CharSet.Ansi)]
-    public static extern int draw_text(IntPtr canvas, IntPtr font, int x, int y, byte r, byte g, byte b,
-                                       string utf8_text, int extra_spacing);
-
-    [DllImport(Lib, CharSet = CharSet.Ansi)]
-    public static extern int vertical_draw_text(IntPtr canvas, IntPtr font, int x, int y, byte r, byte g, byte b,
-                                                string utf8_text, int kerning_offset);
-
-    [DllImport(Lib, CharSet = CharSet.Ansi)]
-    public static extern void delete_font(IntPtr font);
-
     [DllImport(Lib)]
     [SuppressGCTransition]
     public static extern void led_canvas_get_size(IntPtr canvas, out int width, out int height);
@@ -77,12 +63,6 @@ internal static class Bindings
     [DllImport(Lib)]
     public static extern void led_canvas_fill(IntPtr canvas, byte r, byte g, byte b);
 
-	[DllImport(Lib)]
+    [DllImport(Lib)]
     public static extern void led_canvas_subfill(IntPtr canvas, int x, int y, int width, int height, byte r, byte g, byte b);
-
-    [DllImport(Lib)]
-    public static extern void draw_circle(IntPtr canvas, int xx, int y, int radius, byte r, byte g, byte b);
-
-    [DllImport(Lib)]
-    public static extern void draw_line(IntPtr canvas, int x0, int y0, int x1, int y1, byte r, byte g, byte b);
 }

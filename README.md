@@ -40,12 +40,15 @@ The RGB LED matrix panels can be scored at [Sparkfun][sparkfun],
 them directly from some manufacturer, Taobao or Alibaba.
 
 The `RGBMatrix` class provided in `include/led-matrix.h` does what is needed
-to control these. You can use this as a library in your own projects or just
-use the demo binary provided here which provides some useful examples.
+to control these. You can use this as a library in your own projects.
 
-Check out [utils/ directory for some ready-made tools](./utils) to get started
-using the library, or the [examples-api-use/](./examples-api-use) directory if
-you want to get started programming your own utils.
+This is a **simplified version** of the library focused on basic pixel
+operations (SetPixel, Clear, Fill). For advanced graphics operations like
+text rendering, image loading, or shape drawing, use external libraries
+such as PIL/Pillow, Cairo, or other graphics libraries.
+
+Check out the [examples-api-use/](./examples-api-use) directory if
+you want to get started programming your own utilities.
 
 Panels supported
 ----------------
@@ -193,15 +196,14 @@ Rpi5 is not officially supported as of 2025/11, but see https://github.com/hzell
 
 Let's do it
 ------------
-  1. Run a demo. You find that in the
-     [examples-api-use/](./examples-api-use#running-some-demos) directory:
+  1. Build the library and examples:
 ```
 make -C examples-api-use
-sudo examples-api-use/demo -D0
 ```
-  2. Use the utilities. The [utils](./utils) directory has some ready-made
-    useful utilities to show content. [Go there](./utils) to see how to
-    compile and run these.
+  2. Run a minimal example:
+```
+sudo examples-api-use/minimal-example
+```
   3. Write your own programs using the Matrix in C++ or one of the
      bindings such as Python or C#.
 
@@ -214,11 +216,7 @@ Summary is:
 - https://www.electrodragon.com/product/rgb-matrix-panel-drive-board-for-raspberry-pi-v2/ **is the recommended solution with 3 channels and level shifters**. You can't go wrong there, but expect a bit of shipping time.
 - If shipping time is crucial and you don't want to wire your own, Adafruit sells a single channel board (the electrodragon one is 3 channels), but note that its wiring is non standard and requires a special compile option or command line argument: https://www.adafruit.com/product/3211
 
-### Utilities
-
-The [utils directory](./utils) is meant for ready utilities to show images or
-animated gifs or videos. Read the [README](./utils/README.md) there for
-instructions how to compile.
+### External Projects
 
 There are external projects that use this library and provide higher level
 network protocols, such as the
@@ -509,9 +507,7 @@ brightness fluctuations.
 You can play with value a little and reduce until you find a good balance
 between refresh rate and flicker suppression.
 
-Use this also if you want to have a stable baseline refresh rate when using
-the vsync-multiple flag `-V` in the [led-image-viewer] or
-[video-viewer] utility programs.
+Use this also if you want to have a stable baseline refresh rate.
 
 ```
 --led-no-busy-waiting     : Don't use busy waiting when limiting refresh rate.
@@ -937,8 +933,6 @@ And probably the highest resolution build (384x256):
 
 https://www.youtube.com/watch?v=85PI2C6oBsQ
 
-[led-image-viewer]: ./utils#image-viewer
-[video-viewer]: ./utils#video-viewer
 [matrix64]: ./img/chained-64x64.jpg
 [sparkfun]: https://www.sparkfun.com/products/12584
 [ada]: http://www.adafruit.com/product/1484
