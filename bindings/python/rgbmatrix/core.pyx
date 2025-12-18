@@ -28,27 +28,31 @@ cdef class Canvas:
         if (image.mode != "RGB"):
             raise Exception("Currently, only RGB mode is supported for SetImage(). Please create images with mode 'RGB' or convert first with image = image.convert('RGB'). Pull requests to support more modes natively are also welcome :)")
 
+        img_width, img_height = image.size
+
         if unsafe:
-            #In unsafe mode we directly access the underlying PIL image array
-            #in cython, which is considered unsafe pointer accecss,
-            #however it's super fast and seems to work fine
-            #https://groups.google.com/forum/#!topic/cython-users/Dc1ft5W6KM4
-            img_width, img_height = image.size
-            self.SetPixelsPillow(offset_x, offset_y, img_width, img_height, image.getim())
-        else:
-            # First implementation of a SetImage(). OPTIMIZE_ME: A more native
-            # implementation that directly reads the buffer and calls the underlying
-            # C functions can certainly be faster.
-            img_width, img_height = image.size
-            pixels = image.load()
-            for x in range(max(0, -offset_x), min(img_width, self.width - offset_x)):
-                for y in range(max(0, -offset_y), min(img_height, self.height - offset_y)):
-                    (r, g, b) = pixels[x, y]
-                    self.SetPixel(x + offset_x, y + offset_y, r, g, b)
+            # In unsafe mode we directly access the underlying PIL image array
+            # in cython, which is considered unsafe pointer access,
+            # however it's super fast and seems to work fine
+            # https://groups.google.com/forum/#!topic/cython-users/Dc1ft5W6KM4
+            # If pillow internals aren't available, fall back to safe mode
+            if self.SetPixelsPillow(offset_x, offset_y, img_width, img_height, image.getim()):
+                return
+
+        # Safe mode: pixel-by-pixel access (slower but always works)
+        pixels = image.load()
+        for x in range(max(0, -offset_x), min(img_width, self.width - offset_x)):
+            for y in range(max(0, -offset_y), min(img_height, self.height - offset_y)):
+                (r, g, b) = pixels[x, y]
+                self.SetPixel(x + offset_x, y + offset_y, r, g, b)
 
     @cython.boundscheck(False)
     @cython.wraparound(False)
     def SetPixelsPillow(self, int xstart, int ystart, int width, int height, object image_capsule):
+        """
+        Fast pixel transfer using Pillow internals.
+        Returns True if successful, False if pillow internals aren't available.
+        """
         cdef cppinc.FrameCanvas* my_canvas = <cppinc.FrameCanvas*>self._getCanvas()
         cdef int frame_width = my_canvas.width()
         cdef int frame_height = my_canvas.height()
@@ -59,6 +63,10 @@ cdef class Canvas:
 
         buffer = get_pillow_buffer(image_capsule)
 
+        # If buffer is NULL, pillow internals aren't available
+        if buffer == NULL:
+            return False
+
         for col in range(max(0, -xstart), min(width, frame_width - xstart)):
             for row in range(max(0, -ystart), min(height, frame_height - ystart)):
                 pixel = buffer[row][col]
@@ -66,6 +74,8 @@ cdef class Canvas:
                 g = (pixel >> 8) & 0xFF
                 b = (pixel >> 16) & 0xFF
                 my_canvas.SetPixel(xstart+col, ystart+row, r, g, b)
+
+        return True
 
 cdef class FrameCanvas(Canvas):
     def __dealloc__(self):
